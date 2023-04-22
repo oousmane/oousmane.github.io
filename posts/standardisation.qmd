@@ -21,8 +21,8 @@ license: CC BY-SA
 
 # Définition
 
-La standardisation intervient lors de l'étape de prétraitement des données, c'est à dire lors de la préparation d'un jeu de données pour des modèles de régressions ou de classification.
-Il n'est pas rare de rencontrer également le terme "normalisation" que l'on emploi souvent à la place bien qu'à la base c'est des concepts très proches, en ce sens qu'il s'agit tout deux de méthodes de transformation de données, ils sont quand même différents.
+La standardisation intervient lors de l\'étape de prétraitement des données, c\'est-à-dire lors de la préparation d\'un jeu de données pour des modèles de régressions ou de classification. 
+Il n\'est pas rare de rencontrer également le terme \"normalisation\" que l\'on emploie souvent à la place bien qu\'à la base, c\'est des concepts très proches, en ce sens qu\'il s\'agit tout deux de méthodes de transformation de données, ils sont quand même différents. 
 Sans plus tarder, entrons dans le vif du sujet.
 
 ## La Normalisation
@@ -36,12 +36,13 @@ X_{n} = \frac{(x-x_{min})}{(x_{min} - x_{max})}
 $$
 
 Ici, $x_{min}$ et $x_{max}$ sont respectivement les valeurs minimale et maximale du vecteur $x$.
-Une analyse rapide montre claire que $X_n$ varie entre 0 et 1.
-En effet si $x = x_{min}$ , alors $X_n = 0$ , par contre si $x=x_{max}$ dans ce cas, $X_n$ vaut bel et bien 1.
+Une analyse rapide montre clairement que $X_n$ varie entre 0 et 1.
+En effet si $x = x_{min}$ , alors $X_n = 0$ .
+Par contre si $x=x_{max}$ dans ce cas, $X_n$ vaut bel et bien 1.
 Alors quelque soit la nature, l'ordre de grandeur,et l'unité de mesure de $x$ , on se ramène à des valeurs sans unités, toutes comprises entre 0 et 1.
 On verra par la suite en quoi cela peut être très utile en analyse de données.
 
-Exemple : Calculer le score d'un élève qui à eu 15/20 sachant que la plus faible note était de 12/20 et que la plus forte était 18/20.
+Exemple : Calculer le score d'un élève qui a eu 15/20 sachant que la plus faible note était de 12/20 et que la plus forte était 18/20.
 
 solution :
 
@@ -49,19 +50,20 @@ $$
 score = \frac{(15-12)}{(18-12)} = 0.5
 $$
 
-Voilà qui est bien claire, pour la normalisation, alors qu'en est il pour la standardisation des données?
+Voilà qui est bien clair pour la normalisation.
+Cependant qu'en est il pour la standardisation des données?
 
 ## La standardisation
 
-La standardisation est aussi une technique de transformation, de mise à l'échelle des données.
-C'est la technique de transformation de données la plus courante en analyse de données car constituant un préalable à beaucoup d'algorithme de Machine Learning de la regression en passant par la classification.
-La standardisation tient en deux étapes essentielles:
+La standardisation est aussi une technique de transformation, de mise à l'échelle des données. 
+C'est la technique de transformation de données la plus courante en analyse de données, car constituant un préalable à beaucoup d'algorithmes de Machine Learning. 
+La standardisation tient en deux étapes essentielles :
 
-1.  **Centrage**: cela signifie soustraire la moyenne de l'ensemble de données de chaque point de données.
+1.  **Le centrage**: cela signifie soustraire la moyenne de l'ensemble de données de chaque point de données.
     Cela permet de centrer les données autour de zéro.
 
-2.  **Réduction**: cela implique de diviser chaque valeur de l'ensemble de données par l'écart-type de l'ensemble de données.
-    Cela permet de réduire les données à une échelle standard.
+2.  **La réduction**: cela implique de diviser chaque valeur de l'ensemble de données par l'écart-type de celui-ci.
+    Les données sont donc réduites à une échelle standard.
 
 La réalisation simultanée de ses deux opérations permet d'obtenir une nouvelle variable dite centrée et réduite dont la moyenne vaut 0 et l'écart-type 1.
 La nouvelle variable est nommé **score standard ou z-score**.
@@ -74,35 +76,35 @@ $$
 Ici $\mu$ représente la moyenne du vecteur de données $x$ et $\sigma$ son écart-type.
 Il est clair qu'ainsi défini, le z-score est aussi sans unité.
 
-Maintenant que nous avons une idée assez claire sur les concepts de normalisation et de standardisation, en quoi cela pourrait être utile ?
+Maintenant que nous avons une idée assez claire sur les concepts de normalisation et de standardisation, en quoi cela pourrait nous être utile ?
 
 # Utilisation des scores
 
 Que ce soit la normalisation ou la standardisation, nous l'avons vu, nous déterminons pour chaque point de donnée un score.
-Lequel score a tout point de vue ne dépend plus de l'ordre de grandeur, ou des unités de mesures à la base.
+Lequel score a tout point de vue ne dépend plus de l'ordre de grandeur, ou des unités de mesure à la base.
 C'est là, tout l'intérêt de la transformation de données.
 
-## Intercomparaison de variables
+## Inter-comparaison de variables
 
-Oui, comme nous venons de le dire le fait d'attribuer des scores pour chaque point de données d'une variable cela rend inter comparable ces derniers.
-Une fois transformée, on donne le même la même importance dans un modèle de machine learning le poids en g et l'âge en années !
-Mieux ont pourrait comparer des poids d'oiseaux à ceux d'éléphants dans un dataset car chaque observation ne représente plus qu'un score.
-On fait comme on l'a déjà dit abstraction et de l'ordre de grandeur et des unités pour comparer les observations.
+Oui, comme nous venons de dire le fait d'attribuer des scores pour chaque point de données d'une variable cela rend inter-comparables ces derniers. 
+Une fois transformée, on donne le même la même importance dans un modèle de machine learning le poids en g et l'âge en années ! 
+Mieux on pourrait comparer des poids d'oiseaux à ceux d'éléphants dans un dataset, car chaque observation ne représente plus qu'un score. 
+On fait carrément abstraction et de l'ordre de grandeur et des unités pour comparer les observations entre elles.
 
 ## Détection de valeurs douteuses
 
-Pour cela on utilise généralement le z-score qui constitue une mesure utile pour identifier les valeurs extrêmes ou douteuses dans un dataset.
-En effet, il permet de quantifier à quel point une valeur est éloignée de la moyenne de l'ensemble de données en termes d'écart-type.
-Les valeurs de z-score supérieures à 3 en valeur absolue sont généralement considérées comme des valeurs extrèmes ou douteuses.
+Pour cela, on utilise généralement le z-score qui constitue une mesure utile pour identifier les valeurs extrêmes ou douteuses dans un dataset. 
+En effet, il permet de quantifier à quel point une valeur est éloignée de la moyenne de l'ensemble de données en termes d'écart-type. 
+Les valeurs de z-score supérieures à 3 en valeur absolue sont généralement considérées comme des valeurs extrêmes ou douteuses.
 
 # Implémentation dans R
 
-Maintenant que nous avons fixé clairement les idées sur ces méthodes de transformation de données, voyons comment les mettre en oeuvre avec R et tidyverse !
+Maintenant que nous avons fixé clairement les idées sur ces méthodes de transformation de données, voyons comment les mettre en pratique avec R et tidyverse !
 
 ## Normalisation
 
-Il n'existe pas de fonction de base pour calculer ce score, on écrit vite fait nous même notre petite fonction pour le cela.
-La fonction à générer plusieurs variables pour question de lisibilité et de clarté, ce n'est pas une approche très optimale.
+Il n'existe pas de fonction de base pour calculer ce score, on écrit vite fait nous-même notre petite fonction pour réaliser cette tâche. 
+La fonction que nous avons mise en place comporte plusieurs variables intermédiaires pour des questions de lisibilité et de clarté.
 
 ```{r}
 normalize <- function(x){
@@ -123,7 +125,7 @@ normalize(x)
 ```
 
 Sauf que le plus souvent, nous disposons d'un tableau de données (dataframe) avec plusieurs dizaines de variables quantitative et qualitative.
-nous pouvons normalisé à la fois chacune des variables en uilisant la force de `dplyr` inclut dans le `tidyverse`.
+nous pouvons normalisé à la fois chacune des variables quantitative en uilisant la force de `dplyr` inclut dans le `tidyverse`.
 Nous allons appliquer l'example avec le jeu de données `iris`
 
 ```{r, message=FALSE}
@@ -138,9 +140,8 @@ iris %>%
 
 ```
 
-Et voilà, le tour est joué !
-bravo à vous.
-Cette approche vous permet d'aller vite dans le processus d'analyse de vos données.
+Et voilà, le tour est joué. 
+Cette approche vous permet d'aller vite dans le processus d'analyse de vos données, au lieu d'être tenté de faire colonne après colonne.
 
 ## Standardisation
 
@@ -175,6 +176,6 @@ Et voilà qui est vite fait, bien fait.
 # Conclusion
 
 Nous avons à travers ce très court article appris comment normaliser un jeu de données rapidement avec R.
-La transformation de données est une étape capitale dans le processus d'analyse de données et de pré-traitrement au Machine Learning.
-Il existe un grand nombre de méthodes de transformation de données en fonction des objectifs et de la nature des variables à disposition.
-L'un dans l'autre, ce post comme les autres (passés ou à venir) sont à titre d'introduction.
+La transformation de données est une étape capitale dans le processus d'analyse de données et de pré-traitement au Machine Learning. 
+Il existe un grand nombre de méthodes de transformation de données en fonction des objectifs et de la nature des variables à disposition. 
+L'un dans l'autre, ce post comme les autres (passés ou à venir) sont à titre d'introduction.
