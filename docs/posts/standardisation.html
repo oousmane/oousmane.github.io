@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.333">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ousmane Ouedraogo">
+<meta name="description" content="En statistiques, plus généralement en analyse de données on rencontre couramment le terme standardisation. De quoi s’agit-il? A quoi ça sert et comment l’implémenter dans R? tout savoir sur ce court billet de blog.">
+
+<title>Standardisation de données</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer"
+  }
+}</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"express",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  });
+});
+</script> 
+  
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Standardisation de données">
+<meta property="og:description" content="En statistiques, plus généralement en analyse de données on rencontre couramment le terme standardisation. De quoi s’agit-il? A quoi ça sert et comment l’implémenter dans R? tout savoir sur ce court billet de blog.">
+<meta property="og:image" content="standardisation-files/z-score.png">
+<meta name="twitter:title" content="Standardisation de données">
+<meta name="twitter:description" content="En statistiques, plus généralement en analyse de données on rencontre couramment le terme standardisation. De quoi s’agit-il? A quoi ça sert et comment l’implémenter dans R? tout savoir sur ce court billet de blog.">
+<meta name="twitter:image" content="standardisation-files/z-score.png">
+<meta name="twitter:creator" content="@oousmane_11">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../logo_name.png" alt="" class="navbar-logo">
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Recherche"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Basculer la navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html" rel="" target="">
+ <span class="menu-text">Accueil</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../blog.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../formations.html" rel="" target="">
+ <span class="menu-text">Formations</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../resume/resume.pdf" rel="" target="">
+ <span class="menu-text">CV</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/oousmane_11" rel="" target=""><i class="bi bi-twitter" role="img" aria-label="twitter">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/oousmane" rel="" target=""><i class="bi bi-github" role="img" aria-label="github">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.facebook.com/oousmane.aly" rel="" target=""><i class="bi bi-facebook" role="img" aria-label="facebook">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Standardisation de données</h1>
+                  <div>
+        <div class="description">
+          <p>En statistiques, plus généralement en analyse de données on rencontre couramment le terme standardisation. De quoi s’agit-il? A quoi ça sert et comment l’implémenter dans R? tout savoir sur ce court billet de blog.</p>
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">Stats</div>
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">ML</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Auteur·rice</div>
+      <div class="quarto-title-meta-contents">
+               <p><a href="https://oousmane.com/">Ousmane Ouedraogo</a> <a href="https://orcid.org/0000-0002-6349-41468" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Date de publication</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">22 avril 2023</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sur cette page</h2>
+   
+  <ul>
+  <li><a href="#définition" id="toc-définition" class="nav-link active" data-scroll-target="#définition">Définition</a>
+  <ul class="collapse">
+  <li><a href="#la-normalisation" id="toc-la-normalisation" class="nav-link" data-scroll-target="#la-normalisation">La Normalisation</a></li>
+  <li><a href="#la-standardisation" id="toc-la-standardisation" class="nav-link" data-scroll-target="#la-standardisation">La standardisation</a></li>
+  </ul></li>
+  <li><a href="#utilisation-des-scores" id="toc-utilisation-des-scores" class="nav-link" data-scroll-target="#utilisation-des-scores">Utilisation des scores</a>
+  <ul class="collapse">
+  <li><a href="#intercomparaison-de-variables" id="toc-intercomparaison-de-variables" class="nav-link" data-scroll-target="#intercomparaison-de-variables">Intercomparaison de variables</a></li>
+  <li><a href="#détection-de-valeurs-douteuses" id="toc-détection-de-valeurs-douteuses" class="nav-link" data-scroll-target="#détection-de-valeurs-douteuses">Détection de valeurs douteuses</a></li>
+  </ul></li>
+  <li><a href="#implémentation-dans-r" id="toc-implémentation-dans-r" class="nav-link" data-scroll-target="#implémentation-dans-r">Implémentation dans R</a>
+  <ul class="collapse">
+  <li><a href="#normalisation" id="toc-normalisation" class="nav-link" data-scroll-target="#normalisation">Normalisation</a></li>
+  <li><a href="#standardisation" id="toc-standardisation" class="nav-link" data-scroll-target="#standardisation">Standardisation</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="définition" class="level1">
+<h1>Définition</h1>
+<p>La standardisation intervient lors de l’étape de prétraitement des données, c’est à dire lors de la préparation d’un jeu de données pour des modèles de régressions ou de classification. Il n’est pas rare de rencontrer également le terme “normalisation” que l’on emploi souvent à la place bien qu’à la base c’est des concepts très proches, en ce sens qu’il s’agit tout deux de méthodes de transformation de données. Sans plus tarder, entrons dans le vif du sujet.</p>
+<section id="la-normalisation" class="level2">
+<h2 class="anchored" data-anchor-id="la-normalisation">La Normalisation</h2>
+<p>Il s’agit d’une technique de mise à l’échelle ou de transformation, dans laquelle chaque point de données est mis à l’échelle de manière à ce qu’ils se situent tous entre 0 et 1. Cette technique est également connue sous le nom “<strong>transformation min-max”</strong>. La formule permettant de normaliser un vecteur de données est la suivante :</p>
+<p><span class="math display">\[
+X_{n} = \frac{(x-x_{min})}{(x_{min} - x_{max})}
+\]</span></p>
+<p>Ici, <span class="math inline">\(x_{min}\)</span> et <span class="math inline">\(x_{max}\)</span> sont respectivement les valeurs minimale et maximale du vecteur <span class="math inline">\(x\)</span>. Une analyse rapide montre claire que <span class="math inline">\(X_n\)</span> varie entre 0 et 1. En effet si <span class="math inline">\(x = x_{min}\)</span> , alors <span class="math inline">\(X_n = 0\)</span> , par contre si <span class="math inline">\(x=x_{max}\)</span> dans ce cas, <span class="math inline">\(X_n\)</span> vaut bel et bien 1. Alors quelque soit la nature, l’ordre de grandeur,et l’unité de mesure de <span class="math inline">\(x\)</span> , on se ramène à des valeurs sans unités, toutes comprises entre 0 et 1. On verra par la suite en quoi celà peut être très utile en analyse de données.</p>
+<p>Exemple : Calculer le score d’un élève qui à eu 15/20 sachant que la plus faible note était de 12/20 et que la plus forte était 18/20.</p>
+<p>solution :</p>
+<p><span class="math display">\[
+score = \frac{(15-12)}{(18-12)} = 0.5
+\]</span></p>
+<p>Voilà qui est bien claire, pour la normalisation, alors qu’en est il pour la standardisation des données?</p>
+</section>
+<section id="la-standardisation" class="level2">
+<h2 class="anchored" data-anchor-id="la-standardisation">La standardisation</h2>
+<p>La standardisation est aussi une technique de transformation, de mise à l’échelle des données. C’est la technique de transformation de données la plus courante en analyse de données car constituant un préalable à beaucoup d’algorithme de Machine Learning. La standardisation tient en deux étapes essentielles:</p>
+<ol type="1">
+<li><p><strong>Centrage</strong>: cela signifie soustraire la moyenne de l’ensemble de données de chaque point de données. Cela permet de centrer les données autour de zéro.</p></li>
+<li><p><strong>Réduction</strong>: cela implique de diviser chaque valeur de l’ensemble de données par l’écart-type de l’ensemble de données. Cela permet de réduire les données à une échelle standard.</p></li>
+</ol>
+<p>La réalisation simultanée de ses deux opérations permet d’obtenir une nouvelle variable dite centrée et réduite dont la moyenne vaut 0 et l’écart-type 1. La nouvelle variable est nommé <strong>score standard ou z-score</strong>. Pour calculer le z-score <span class="math inline">\(z\)</span>, on utilise la formule suivante :</p>
+<p><span class="math display">\[
+z = \frac{(x - \mu)}{\sigma}
+\]</span></p>
+<p>Ici <span class="math inline">\(\mu\)</span> représente la moyenne du vecteur de données <span class="math inline">\(x\)</span> et <span class="math inline">\(\sigma\)</span> son écart-type. Il est clair qu’ainsi défini, le z-score est aussi sans unité.</p>
+<p>Maintenant que nous avons une idée assez claire sur les concepts de normalisation et de standardisation, en quoi celà pourrait être utile ?</p>
+</section>
+</section>
+<section id="utilisation-des-scores" class="level1">
+<h1>Utilisation des scores</h1>
+<p>Que ce soit la normalisation ou la standardisation, nous l’avons vu, nous déterminons pour chaque point de donnée un score. Lequel score a tout point de vue ne dépend plus de l’ordre de grandeur, ou des unités de mesures à la base. C’est là, tout l’intérêt de la transformation de données.</p>
+<section id="intercomparaison-de-variables" class="level2">
+<h2 class="anchored" data-anchor-id="intercomparaison-de-variables">Intercomparaison de variables</h2>
+<p>Oui, comme nous venons de le dire le fait d’attribuer des scores pour chaque point de données d’une variable cela rend inter comparable ces derniers. Une fois transformée, on donne le même poids dans un modèle de machine learning poids en g et l’âge en années ! Mieux ont pourrait comparer des poids d’oiseaux à ceux d’éléphants dans un dataset car chaque observation ne représente plus qu’un score. On fait comme on l’a déjà dit abstraction et de l’ordre de grandeur et des unités pour comparer les observations.</p>
+</section>
+<section id="détection-de-valeurs-douteuses" class="level2">
+<h2 class="anchored" data-anchor-id="détection-de-valeurs-douteuses">Détection de valeurs douteuses</h2>
+<p>Pour cela on utilise généralement le z-score qui constitue une mesure utile pour identifier les valeurs extrêmes ou douteuses dans un dataset. En effet, il permet de quantifier à quel point une valeur est éloignée de la moyenne de l’ensemble de données en termes d’écart-type. Les valeurs de z-score supérieures à 3 (ou inférieures à -3) sont généralement considérées comme des valeurs extrèmes ou douteuses.</p>
+</section>
+</section>
+<section id="implémentation-dans-r" class="level1">
+<h1>Implémentation dans R</h1>
+<p>Maintenant que nous avons fixé clairement les idées sur ces méthodes de transformation de données, voyons comment les mettre en oeuvre avec R et tidyverse !</p>
+<section id="normalisation" class="level2">
+<h2 class="anchored" data-anchor-id="normalisation">Normalisation</h2>
+<p>Il n’existe pas de fonction de base pour calculer ce score, on écrit vite fait nous même notre petite fonction pour celà. La fonction à générer plusieurs variables pour question de lisibilité et de clarté, ce n’est pas une approche très optimale.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>normalize <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  num <span class="ot">=</span> (x<span class="sc">-</span><span class="fu">min</span>(x,<span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  denum <span class="ot">=</span> (<span class="fu">max</span>(x,<span class="at">na.rm =</span> <span class="cn">TRUE</span>)<span class="sc">-</span><span class="fu">min</span>(x,<span class="at">na.rm =</span> <span class="cn">TRUE</span>) )</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  score <span class="ot">=</span> num<span class="sc">/</span>denum</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(score)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Une fois que nous avons notre fonction, nous pouvons faire un test rapide</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="at">n =</span> <span class="dv">10</span>,<span class="at">min =</span> <span class="dv">0</span>,<span class="at">max =</span> <span class="dv">100</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">normalize</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 0.00000000 0.63710954 0.32055111 0.30936167 1.00000000 0.23722821
+ [7] 0.06496755 0.55788499 0.32647661 0.38632857</code></pre>
+</div>
+</div>
+<p>Sauf que le plus souvent, nous disposons d’un tableau de données (dataframe) avec plusieurs dizaines de variables quantitative et qualitative. nous pouvons normalisé à la fois chacune des variables en uilisant la force de <code>dplyr</code> inclut dans le <code>tidyverse</code>. Nous allons appliquer l’example avec le jeu de données <code>iris</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>iris <span class="sc">%&gt;%</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute_if</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.predicate =</span> is.numeric, <span class="co"># selectionnes les colonnes quantitatives</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.funs =</span> normalize <span class="co"># normalisation de chaque colonne</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="co"># affiche les 6 premieres lignes</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Sepal.Length Sepal.Width Petal.Length Petal.Width
+1   0.22222222   0.6250000   0.06779661  0.04166667
+2   0.16666667   0.4166667   0.06779661  0.04166667
+3   0.11111111   0.5000000   0.05084746  0.04166667
+4   0.08333333   0.4583333   0.08474576  0.04166667
+5   0.19444444   0.6666667   0.06779661  0.04166667
+6   0.30555556   0.7916667   0.11864407  0.12500000</code></pre>
+</div>
+</div>
+<p>Et voilà, le tour est joué ! bravo à vous. Cette approche vous permet d’aller vite dans le processus d’analyse de vos données.</p>
+</section>
+<section id="standardisation" class="level2">
+<h2 class="anchored" data-anchor-id="standardisation">Standardisation</h2>
+<p>Contrairement à la normalisation, il existe une fonction dans R pour calculer le z-score, il s’agit de la fonction <code>scale()</code> . Seule attitude pas très jolie c’est que cette fonction retourne une matrice quand vous lui fournissez un vecteur. Je le reconnais ce n’est pas très pratique mais on peut faire avec. Si vous voulez vous pouvez écrire une fonction vite fait, elle n’est pas très compliquée.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>new_scale <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">=</span> (x<span class="sc">-</span><span class="fu">mean</span>(x,<span class="at">na.rm =</span> <span class="cn">TRUE</span>))<span class="sc">/</span><span class="fu">sd</span>(x,<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(z)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Et c’est tout ! Mais par principe, c’est mon principe pourquoi réécrire des fonctions qui existent? Nous allons utiliser le même jeu de données <code>iris</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>iris <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute_if</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">.predicate =</span> is.numeric, <span class="co"># selectionnes les colonnes quantitatives</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.funs =</span> <span class="sc">~</span><span class="fu">scale</span>(.)[,<span class="dv">1</span>] <span class="co"># z-score pour chaque variable</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="co"># affiche les 6 premieres lignes</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Sepal.Length Sepal.Width Petal.Length Petal.Width
+1   -0.8976739  1.01560199    -1.335752   -1.311052
+2   -1.1392005 -0.13153881    -1.335752   -1.311052
+3   -1.3807271  0.32731751    -1.392399   -1.311052
+4   -1.5014904  0.09788935    -1.279104   -1.311052
+5   -1.0184372  1.24503015    -1.335752   -1.311052
+6   -0.5353840  1.93331463    -1.165809   -1.048667</code></pre>
+</div>
+</div>
+<p>Et voilà qui est vite fait, bien fait.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>Nous avons à travers ce très court article appris comment normaliser un jeu de données rapidement avec R. La transformation de données est une étape capitale dans le processus d’analyse de données et de pré-traitrement au Machine Learning. Il existe un grand nombre de méthodes de transformation de données en fonction des objectifs et de la nature des variables à disposition. L’un dans l’autre, ce post comme les autres (passés ou à venir) sont à titre d’introduction.</p>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Réutilisation</h2><div id="quarto-reuse" class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr">https://creativecommons.org/licenses/by-sa/4.0/deed.fr</a></div></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{ouedraogo2023,
+  author = {Ouedraogo, Ousmane},
+  title = {Standardisation de données},
+  date = {2023-04-22},
+  url = {https://oousmane.com/standardisation},
+  langid = {fr}
+}
+</code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">Veuillez citer ce travail comme suit&nbsp;:</div><div id="ref-ouedraogo2023" class="csl-entry quarto-appendix-citeas" role="listitem">
+Ouedraogo, Ousmane. 2023. <span>“Standardisation de données.”</span>
+April 22, 2023. <a href="https://oousmane.com/standardisation">https://oousmane.com/standardisation</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">All content are © Ousmane Ouedraogo and licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons</a></div>   
+    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right"><a href="https://github.com/oousmane/quarto-blog"><i class="fa-brands fa-github" aria-hidden="true"></i></a></div>
+  </div>
+</footer>
+
+
+
+</body></html>

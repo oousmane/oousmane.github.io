@@ -15,7 +15,7 @@ website:
   #  utterances:
   #    repo: oousmane/cdc-website
   #    label: Commentaires
-  repo-url: https://github.com/oousmane/quarto-blog
+  repo-url: https://github.com/oousmane/oousmane.github.io
   open-graph: true
   twitter-card:
     creator: "@oousmane_11"

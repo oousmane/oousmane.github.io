@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/standardisation.html",
       "/posts/kmeans.html",
       "/posts/bienvenue.html"
     ]
