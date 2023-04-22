@@ -6,6 +6,7 @@ title-block-banner: true
 lang: fr
 toc: true
 image: standardisation-files/z-score.png
+preview-links: true
 date: today
 categories: [Stats,R, ML]
 author:
@@ -21,13 +22,13 @@ license: CC BY-SA
 # Définition
 
 La standardisation intervient lors de l'étape de prétraitement des données, c'est à dire lors de la préparation d'un jeu de données pour des modèles de régressions ou de classification.
-Il n'est pas rare de rencontrer également le terme "normalisation" que l'on emploi souvent à la place bien qu'à la base c'est des concepts très proches, en ce sens qu'il s'agit tout deux de méthodes de transformation de données.
+Il n'est pas rare de rencontrer également le terme "normalisation" que l'on emploi souvent à la place bien qu'à la base c'est des concepts très proches, en ce sens qu'il s'agit tout deux de méthodes de transformation de données, ils sont quand même différents.
 Sans plus tarder, entrons dans le vif du sujet.
 
-## La Normalisation 
+## La Normalisation
 
-Il s'agit d'une technique de mise à l'échelle ou de transformation, dans laquelle chaque point de données est mis à l'échelle de manière à ce qu'ils se situent tous entre 0 et 1.
-Cette technique est également connue sous le nom "**transformation min-max"**.
+Il s'agit d'une technique de mise à l'échelle ou de transformation, dans laquelle chaque point de données est transformé de manière à ce qu'ils se situent tous entre 0 et 1.
+Cette technique est également connue sous le nom de "**transformation min-max"**.
 La formule permettant de normaliser un vecteur de données est la suivante :
 
 $$
@@ -38,7 +39,7 @@ Ici, $x_{min}$ et $x_{max}$ sont respectivement les valeurs minimale et maximale
 Une analyse rapide montre claire que $X_n$ varie entre 0 et 1.
 En effet si $x = x_{min}$ , alors $X_n = 0$ , par contre si $x=x_{max}$ dans ce cas, $X_n$ vaut bel et bien 1.
 Alors quelque soit la nature, l'ordre de grandeur,et l'unité de mesure de $x$ , on se ramène à des valeurs sans unités, toutes comprises entre 0 et 1.
-On verra par la suite en quoi celà peut être très utile en analyse de données.
+On verra par la suite en quoi cela peut être très utile en analyse de données.
 
 Exemple : Calculer le score d'un élève qui à eu 15/20 sachant que la plus faible note était de 12/20 et que la plus forte était 18/20.
 
@@ -53,7 +54,7 @@ Voilà qui est bien claire, pour la normalisation, alors qu'en est il pour la st
 ## La standardisation
 
 La standardisation est aussi une technique de transformation, de mise à l'échelle des données.
-C'est la technique de transformation de données la plus courante en analyse de données car constituant un préalable à beaucoup d'algorithme de Machine Learning.
+C'est la technique de transformation de données la plus courante en analyse de données car constituant un préalable à beaucoup d'algorithme de Machine Learning de la regression en passant par la classification.
 La standardisation tient en deux étapes essentielles:
 
 1.  **Centrage**: cela signifie soustraire la moyenne de l'ensemble de données de chaque point de données.
@@ -73,9 +74,9 @@ $$
 Ici $\mu$ représente la moyenne du vecteur de données $x$ et $\sigma$ son écart-type.
 Il est clair qu'ainsi défini, le z-score est aussi sans unité.
 
-Maintenant que nous avons une idée assez claire sur les concepts de normalisation et de standardisation, en quoi celà pourrait être utile ?
+Maintenant que nous avons une idée assez claire sur les concepts de normalisation et de standardisation, en quoi cela pourrait être utile ?
 
-# Utilisation des scores 
+# Utilisation des scores
 
 Que ce soit la normalisation ou la standardisation, nous l'avons vu, nous déterminons pour chaque point de donnée un score.
 Lequel score a tout point de vue ne dépend plus de l'ordre de grandeur, ou des unités de mesures à la base.
@@ -84,7 +85,7 @@ C'est là, tout l'intérêt de la transformation de données.
 ## Intercomparaison de variables
 
 Oui, comme nous venons de le dire le fait d'attribuer des scores pour chaque point de données d'une variable cela rend inter comparable ces derniers.
-Une fois transformée, on donne le même poids dans un modèle de machine learning poids en g et l'âge en années !
+Une fois transformée, on donne le même la même importance dans un modèle de machine learning le poids en g et l'âge en années !
 Mieux ont pourrait comparer des poids d'oiseaux à ceux d'éléphants dans un dataset car chaque observation ne représente plus qu'un score.
 On fait comme on l'a déjà dit abstraction et de l'ordre de grandeur et des unités pour comparer les observations.
 
@@ -92,7 +93,7 @@ On fait comme on l'a déjà dit abstraction et de l'ordre de grandeur et des uni
 
 Pour cela on utilise généralement le z-score qui constitue une mesure utile pour identifier les valeurs extrêmes ou douteuses dans un dataset.
 En effet, il permet de quantifier à quel point une valeur est éloignée de la moyenne de l'ensemble de données en termes d'écart-type.
-Les valeurs de z-score supérieures à 3 (ou inférieures à -3) sont généralement considérées comme des valeurs extrèmes ou douteuses.
+Les valeurs de z-score supérieures à 3 en valeur absolue sont généralement considérées comme des valeurs extrèmes ou douteuses.
 
 # Implémentation dans R
 
@@ -100,7 +101,7 @@ Maintenant que nous avons fixé clairement les idées sur ces méthodes de trans
 
 ## Normalisation
 
-Il n'existe pas de fonction de base pour calculer ce score, on écrit vite fait nous même notre petite fonction pour celà.
+Il n'existe pas de fonction de base pour calculer ce score, on écrit vite fait nous même notre petite fonction pour le cela.
 La fonction à générer plusieurs variables pour question de lisibilité et de clarté, ce n'est pas une approche très optimale.
 
 ```{r}
@@ -146,7 +147,8 @@ Cette approche vous permet d'aller vite dans le processus d'analyse de vos donn�
 Contrairement à la normalisation, il existe une fonction dans R pour calculer le z-score, il s'agit de la fonction `scale()` .
 Seule attitude pas très jolie c'est que cette fonction retourne une matrice quand vous lui fournissez un vecteur.
 Je le reconnais ce n'est pas très pratique mais on peut faire avec.
-Si vous voulez vous pouvez écrire une fonction vite fait, elle n'est pas très compliquée.
+Si vous voulez vous pouvez écrire une fonction vite fait, de toute les façon elle n'est pas très compliquée.
+En voici un exemple de code :
 
 ```{r}
 new_scale <- function(x){
@@ -156,7 +158,7 @@ new_scale <- function(x){
 ```
 
 Et c'est tout !
-Mais par principe, c'est mon principe pourquoi réécrire des fonctions qui existent?
+Mais par principe, c'est mon principe à moi j'avoue, pourquoi réécrire des fonctions qui existent?
 Nous allons utiliser le même jeu de données `iris`
 
 ```{r}
